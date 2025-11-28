@@ -1,16 +1,23 @@
 <script lang="ts">
   import { BuilderStyleRoot, BuilderFrame, UpdateChecker } from '@abcnews/components-builder';
+  import { PencilSquare, PlusLg, Trash } from 'svelte-bootstrap-icons';
+  import { decode, encode } from '../codec';
+  import EditModal from './EditModal.svelte';
+  import type { ImageRendition } from '../Image/getImages';
   import Image from '../Image/Image.svelte';
+  let modal = $state<ImageRendition>();
 
-  const initialParams = new URLSearchParams(window.location.hash.slice(1));
+  const searchParamsEncoded = new URLSearchParams(window.location.hash.slice(1)).get('images');
+  const defaultParams = encode([
+    { id: '106077488', breakpoint: 'mobile', mediaQuery: '' },
+    { id: '106077486', breakpoint: 'desktop', mediaQuery: '' }
+  ]);
 
-  let cmidSmall = $state(initialParams.get('small') || '106077488');
-  let cmidLarge = $state(initialParams.get('large') || '106077486');
+  let images = $state<ImageRendition[]>(decode(searchParamsEncoded || defaultParams));
 
   $effect(() => {
     const params = new URLSearchParams();
-    params.append('small', cmidSmall);
-    params.append('large', cmidLarge);
+    params.append('images', encode(images));
     window.location.hash = String(params);
   });
 </script>
@@ -26,41 +33,79 @@
         </div>
         <div class="desktop__title">Desktop</div>
       </div>
-      <Image
-        cmids={{
-          small: cmidSmall,
-          large: cmidLarge
-        }}
-      />
+
+      <Image {images} />
     </div>
 
     <div class="mobile">
       <div class="mobile__floater">
-        <Image
-          cmids={{
-            small: cmidSmall,
-            large: cmidLarge
-          }}
-        />
+        <Image {images} />
       </div>
     </div>
   </div>
 {/snippet}
 
 {#snippet Sidebar()}
+  {#if modal}
+    <EditModal
+      onClose={() => {
+        modal = undefined;
+      }}
+      bind:image={modal}
+    />
+  {/if}
   <fieldset>
-    <legend> Images </legend>
-
-    <div><label>Mobile <input type="text" bind:value={cmidSmall} /></label></div>
-    <div><label>Desktop <input type="text" bind:value={cmidSmall} /></label></div>
+    <legend>
+      <button
+        class="btn-icon"
+        onclick={() => {
+          images = [
+            ...images,
+            {
+              id: '',
+              breakpoint: 'desktop',
+              mediaQuery: ''
+            }
+          ];
+        }}><PlusLg /></button
+      > Images
+    </legend>
+    <table class="builder__table">
+      <thead><tr><th>rendition</th><th>id</th><th>Edit</th></tr></thead>
+      <tbody>
+        {#each images as image, index}
+          <tr>
+            <td>{image.breakpoint}</td>
+            <td>{image.id}</td>
+            <td>
+              <button
+                onclick={() => {
+                  modal = image;
+                }}
+              >
+                <PencilSquare />
+              </button>
+              <button
+                onclick={() => {
+                  images = images.filter((img, i) => i !== index);
+                }}
+              >
+                <Trash />
+              </button>
+            </td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
   </fieldset>
   <fieldset>
     <legend>Iframe URL</legend>
     <div>Copy this into your External Link document</div>
     <br />
     <input
-      value="{window.location.origin}{window.location
-        .pathname}?small={cmidSmall}&large={cmidLarge}&abcnewsembedheight=0"
+      value="{window.location.origin}{window.location.pathname.replace('builder/', '')}?images={encodeURIComponent(
+        encode(images)
+      )}&abcnewsembedheight=0"
       disabled={true}
     />
   </fieldset>

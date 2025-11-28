@@ -33,6 +33,7 @@
 		"@abcnews/env-utils": "^5.0.2",
 		"@abcnews/mount-utils": "^3.0.0",
 		"@abcnews/terminus-fetch": "^7.0.0",
-		"svelte": "^5.45.2"
+		"svelte": "^5.45.2",
+		"svelte-bootstrap-icons": "^3.3.0"
 	}
 }

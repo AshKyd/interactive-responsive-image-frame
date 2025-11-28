@@ -1,14 +1,12 @@
 <script>
   import AmpResize from '../AmpResize/AmpResize.svelte';
+  import { decode } from '../codec';
   import Image from '../Image/Image.svelte';
 
   const params = new URLSearchParams(location.search);
-  const cmids = {
-    small: params.get('small'),
-    large: params.get('large')
-  };
+  const images = decode(params.get('images') || '');
 </script>
 
 <AmpResize>
-  <Image {cmids} />
+  <Image {images} />
 </AmpResize>

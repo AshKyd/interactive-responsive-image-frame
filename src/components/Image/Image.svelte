@@ -1,20 +1,21 @@
 <script lang="ts">
-  import getImage from './getImages';
-  let { cmids } = $props();
+  import getImages, { type FetchedRenditions } from './getImages';
+  let { images } = $props();
   let embedWidth = $state(window.innerWidth);
-  let rendition = $derived.by(() => (embedWidth < 608 ? 'mobile' : 'desktop'));
-  let doc = $state({ width: 0, height: 0, url: '', alt: '' });
+  let renditions = $state<FetchedRenditions[]>([]);
+  let defaultRendition = $derived.by(() => renditions[0]);
   let error = $state('');
+
+  const defaultMediaQueries = {
+    mobile: '(max-width: 607px)',
+    desktop: '(min-width: 680px)'
+  };
 
   $effect(() => {
     error = '';
-    getImage(rendition, cmids)
-      .then(got => {
-        const { cropWidth, cropHeight, url } = got.media?.image?.primary?.complete?.[0] || {};
-        if (!url) {
-          throw new Error('Unexpected payload');
-        }
-        doc = { width: cropWidth, height: cropHeight, url, alt: got.alt };
+    getImages(images)
+      .then(images => {
+        renditions = images;
       })
       .catch(e => {
         error = e.message;
@@ -26,8 +27,25 @@
   {#if error}
     <div data-debug={error}>Could not load image</div>
   {/if}
-  {#if doc.url}
-    <img src={doc.url} width={doc.width} height={doc.height} loading="lazy" decoding="async" alt={doc.alt} />
+  {#if renditions?.length}
+    <picture>
+      {#each renditions as rendition}
+        <source
+          srcset={rendition.image.url}
+          media={rendition.breakpoint === 'custom' ? rendition.mediaQuery : defaultMediaQueries[rendition.breakpoint]}
+        />
+      {/each}
+      {#if defaultRendition}
+        <img
+          alt={defaultRendition.image.alt}
+          src={defaultRendition.image.url}
+          loading="lazy"
+          decoding="async"
+          width={defaultRendition.image.width}
+          height={defaultRendition.image.height}
+        />
+      {/if}
+    </picture>
   {/if}
 </div>
 

@@ -2,25 +2,23 @@ import { fetchOne } from '@abcnews/terminus-fetch';
 import { TIERS } from '@abcnews/env-utils';
 import getEnv from './getEnv';
 
-let cache = {};
+type TerminusImage = {
+  width: number;
+  height: number;
+  url: string;
+  alt: string;
+};
 
-export default async function getImage(rendition, cmids = { small: '', large: '' }) {
-  const mobile = cmids.small;
-  const desktop = cmids.large;
+export type ImageRendition = { id: string; breakpoint: string; mediaQuery: string };
+
+export type FetchedRenditions = ImageRendition & {
+  image: TerminusImage;
+};
+
+export async function fetchImage(id) {
   const env = getEnv();
-
-  if (!mobile || !desktop) {
-    throw new Error('Missing mobile or desktop IDs');
-  }
-
-  if (cache[rendition]) {
-    // Hack: wait a moment to resolve ResizeObserver throw
-    await new Promise(resolve => setTimeout(resolve, 1));
-    return cache[rendition];
-  }
-
-  const promise = await fetchOne({
-    id: rendition === 'mobile' ? mobile : desktop,
+  return fetchOne({
+    id,
     force: env === 'preview' ? TIERS.PREVIEW : TIERS.LIVE,
     type: 'image'
   }).then(doc => {
@@ -29,9 +27,21 @@ export default async function getImage(rendition, cmids = { small: '', large: ''
     if (!_doc.media) {
       throw new Error('Image has no media');
     }
-    return _doc;
-  });
 
-  cache[rendition] = promise;
-  return promise;
+    const { cropWidth, cropHeight, url } = _doc.media?.image?.primary?.complete?.[0] || {};
+    if (!url) {
+      throw new Error('Unexpected payload');
+    }
+    return { width: cropWidth, height: cropHeight, url, alt: _doc.alt } as TerminusImage;
+  });
+}
+
+export default async function getImages(images: ImageRendition[]): Promise<FetchedRenditions[]> {
+  return Promise.all(
+    images.map(async image => {
+      const terminusImage = await fetchImage(image.id);
+      const payload = { ...image, image: terminusImage };
+      return payload;
+    })
+  );
 }

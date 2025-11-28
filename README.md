@@ -1,12 +1,19 @@
-# interactive-responsive-image-frame
+# interactive-responsive-image-frame (tech preview)
 
 A fairly naive, art-directed responsive image solution using embedded iframes.
 
-## Overview
-
 **This is a stop-gap until our CMS can support art directed responsive images.**
 
-This is a fully Javascript solution, and doesn't use any native features like the `<picture>` element. On load, it queries the iframe size and fetches the relevant image document from Terminus, then uses the original image rendition for display. Therefore, please ensure your images are appropriately compressed before uploading.
+## Overview
+
+This is a fully Javascript solution, and doesn't use any native features like the `<picture>` element.
+
+On load, it:
+
+1. Queries the iframe size and fetches the relevant image document from Terminus
+2. Then uses the original image rendition for display.
+
+Therefore, please ensure your images are appropriately compressed before uploading.
 
 ## Usage
 

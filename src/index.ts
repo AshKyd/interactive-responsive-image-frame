@@ -8,7 +8,16 @@ import { mount } from 'svelte';
 let appMountEl: Mount;
 let appProps;
 
-whenDOMReady.then(() => {
+whenDOMReady.then(async () => {
+  const [builderMountEl] = selectMounts('interactiveresponsivebuilder');
+  if (builderMountEl) {
+    const builder = await import('./components/Builder/Builder.svelte');
+    mount(builder.default, {
+      target: builderMountEl
+    });
+    return;
+  }
+
   [appMountEl] = selectMounts('interactiveresponsiveiframe');
   if (appMountEl) {
     appProps = acto(getMountValue(appMountEl));

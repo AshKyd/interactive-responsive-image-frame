@@ -4,10 +4,9 @@ import getEnv from './getEnv';
 
 let cache = {};
 
-export default async function getImage(rendition) {
-  const params = new URLSearchParams(location.search);
-  const mobile = params.get('small');
-  const desktop = params.get('large');
+export default async function getImage(rendition, cmids = { small: '', large: '' }) {
+  const mobile = cmids.small;
+  const desktop = cmids.large;
   const env = getEnv();
 
   if (!mobile || !desktop) {
@@ -24,20 +23,14 @@ export default async function getImage(rendition) {
     id: rendition === 'mobile' ? mobile : desktop,
     force: env === 'preview' ? TIERS.PREVIEW : TIERS.LIVE,
     type: 'image'
-  })
-    .then(doc => {
-      // This is not a TerminusDocument, despite what the API says
-      const _doc = doc as any;
-      console.log('respo got', doc);
-      if (!_doc.media) {
-        throw new Error('Image has no media');
-      }
-      return _doc;
-    })
-    .catch(e => {
-      console.error('respo', e);
-      throw e;
-    });
+  }).then(doc => {
+    // This is not a TerminusDocument, despite what the API says
+    const _doc = doc as any;
+    if (!_doc.media) {
+      throw new Error('Image has no media');
+    }
+    return _doc;
+  });
 
   cache[rendition] = promise;
   return promise;

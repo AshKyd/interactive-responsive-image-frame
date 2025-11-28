@@ -1,0 +1,34 @@
+{
+  "name": "interactive-responsive-image-frame",
+  "version": "1.0.0-pre",
+  "description": "A project generated from aunty's svelte project template.",
+  "license": "MIT",
+  "private": true,
+  "contributors": [
+    "Ash Kyd <kyd.ashley@abc.net.au>"
+  ],
+  "aunty": {
+    "type": "svelte",
+    "build": {
+      "addModernJS": true
+    }
+  },
+  "scripts": {
+    "start": "aunty serve",
+    "dev": "aunty serve",
+    "test": "aunty test"
+  },
+  "devDependencies": {
+    "@abcnews/aunty": "^16.0.0",
+    "@testing-library/svelte": "^5.2.9",
+    "@types/jest": "^30.0.0",
+    "@types/webpack-env": "^1.18.8"
+  },
+  "dependencies": {
+    "@abcnews/alternating-case-to-object": "^3.2.0",
+    "@abcnews/env-utils": "^5.0.2",
+    "@abcnews/mount-utils": "^3.0.0",
+    "@abcnews/terminus-fetch": "^7.0.0",
+    "svelte": "^5.45.2"
+  }
+}

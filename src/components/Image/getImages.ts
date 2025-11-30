@@ -15,8 +15,13 @@ export type FetchedRenditions = ImageRendition & {
   image: TerminusImage;
 };
 
-export async function fetchImage(id) {
+export async function fetchImage(id = '') {
   const env = getEnv();
+
+  if (!id.match(/^\d+/) || id === '0') {
+    throw new Error('Invalid CMID');
+  }
+
   return fetchOne({
     id,
     force: env === 'preview' ? TIERS.PREVIEW : TIERS.LIVE,

@@ -33,13 +33,14 @@
         </div>
         <div class="desktop__title">Desktop</div>
       </div>
-
-      <Image {images} />
+      <div class="frame">
+        <iframe src="../?images={encode(images)}&env=preview" title="Desktop image"></iframe>
+      </div>
     </div>
 
     <div class="mobile">
-      <div class="mobile__floater">
-        <Image {images} />
+      <div class="frame">
+        <iframe src="../?images={encode(images)}&env=preview" title="Mobile image"></iframe>
       </div>
     </div>
   </div>
@@ -142,8 +143,13 @@
     border: 1px solid rgba(255, 255, 255, 0.2);
   }
   .desktop {
-    width: 680px;
     border-radius: 10px;
+
+    .frame {
+      position: relative;
+      min-height: 70vh;
+      width: 680px;
+    }
     &__bar {
       display: flex;
       align-items: center;
@@ -180,17 +186,25 @@
     aspect-ratio: 9/19.5;
     display: flex;
     position: relative;
-
-    &__floater {
-      position: absolute;
-      left: 10px;
-      top: 20px;
-      width: calc(100% - 20px);
-      height: calc(100% - 40px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: auto;
+    .frame {
+      position: relative;
+      flex: 1;
+      margin: 20px 10px;
     }
+  }
+
+  iframe {
+    background: transparent;
+    border: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+    color-scheme: light;
   }
 </style>
